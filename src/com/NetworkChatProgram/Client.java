@@ -20,6 +20,10 @@ import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
+import java.net.SocketException;
+import java.net.UnknownHostException;
 
 public class Client extends JFrame {
 	private static final long serialVersionUID = 1L;
@@ -32,17 +36,40 @@ public class Client extends JFrame {
 	private JTextField txtMessage;
 	private JTextArea history;
 	private DefaultCaret caret;
+	
+	private DatagramSocket socket;
+	private InetAddress ip;
 
 	public Client(String name, String address, int port) {
 		setTitle("Network Chat Program Client");
 		this.name = name;
 		this.address = address;
 		this.port = port;
+		boolean connect = openConnection(address, port);
+		if (!connect) {
+			System.err.println("Connection failed.");
+			console("Connection failed.");
+		}
+		
 		createWindow();
 		console("Attempting a connection to " + address + ":" + port +
 				", user: " + name + ".");
 	}
 
+	private boolean openConnection(String address, int port) {
+		try {
+			socket = new DatagramSocket();
+			ip = InetAddress.getByName(address);
+		} catch (UnknownHostException e) {
+			e.printStackTrace();
+			return false;
+		} catch (SocketException e) {
+			e.printStackTrace();
+			return false;
+		}
+		return true;
+	}
+	
 	private void createWindow() {
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
@@ -71,9 +98,10 @@ public class Client extends JFrame {
 		GridBagConstraints scrollConstraints = new GridBagConstraints();
 		scrollConstraints.insets = new Insets(0, 0, 5, 5);
 		scrollConstraints.fill = GridBagConstraints.BOTH;
-		scrollConstraints.gridx = 1;
-		scrollConstraints.gridy = 1;
-		scrollConstraints.gridwidth = 2;
+		scrollConstraints.gridx = 0;
+		scrollConstraints.gridy = 0;
+		scrollConstraints.gridwidth = 3;
+		scrollConstraints.gridheight = 2;
 		scrollConstraints.insets = new Insets(0, 5, 0, 0);
 		contentPane.add(scroll, scrollConstraints);
 		
@@ -88,8 +116,9 @@ public class Client extends JFrame {
 		GridBagConstraints gbc_txtMessage = new GridBagConstraints();
 		gbc_txtMessage.insets = new Insets(0, 0, 0, 5);
 		gbc_txtMessage.fill = GridBagConstraints.HORIZONTAL;
-		gbc_txtMessage.gridx = 1;
+		gbc_txtMessage.gridx = 0;
 		gbc_txtMessage.gridy = 2;
+		gbc_txtMessage.gridwidth = 2;
 		contentPane.add(txtMessage, gbc_txtMessage);
 		txtMessage.setColumns(10);
 		
