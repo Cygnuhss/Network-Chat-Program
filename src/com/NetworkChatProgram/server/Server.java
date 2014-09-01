@@ -60,14 +60,25 @@ public class Server implements Runnable {
 					} catch (IOException e) {
 						e.printStackTrace();
 					}
-					String string = new String(packet.getData());
+					process(packet);
 					clients.add(new ServerClient("Cygnuss", packet.getAddress(), packet.getPort(), 50));
 					System.out.println(clients.get(0).address.toString() + ":" + clients.get(0).port);
-					System.out.println(string);
 				}
 			}
 		};
 		receive.start();
+	}
+	
+	private void process(DatagramPacket packet) {
+		String string = new String(packet.getData());
+		// Packets that start with /c/ are connection packets.
+		if (string.startsWith("/c/")) {
+			clients.add(new ServerClient(string.substring(3, string.length()),
+					packet.getAddress(), packet.getPort(), 50));
+			System.out.println(string.substring(3, string.length()));
+		} else {
+			System.out.println(string);
+		}
 	}
 	
 }
