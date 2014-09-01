@@ -3,10 +3,10 @@ package com.NetworkChatProgram.server;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.net.InetAddress;
 import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.List;
-// import java.util.UUID;
 
 public class Server implements Runnable {
 	private List<ServerClient> clients = new ArrayList<ServerClient>();
@@ -70,16 +70,41 @@ public class Server implements Runnable {
 		receive.start();
 	}
 	
+	private void sendToAll(String message) {
+		for (int i = 0; i < clients.size(); i++) {
+			ServerClient client = clients.get(i);
+			send(message.getBytes(), client.address, client.port);
+		}
+	}
+	
+	private void send(final byte[] data, final InetAddress address, final int port) {
+		send = new Thread("Send") {
+			public void run() {
+				DatagramPacket packet = new DatagramPacket(data, data.length,
+						                                   address, port);
+				try {
+					socket.send(packet);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		};
+		send.start();
+	}
+	
 	private void process(DatagramPacket packet) {
 		String string = new String(packet.getData());
 		// Packets that start with /c/ are connection packets.
 		if (string.startsWith("/c/")) {
-			// UUID id = UUID.randomUUID();
 			int id = UniqueIdentifier.getIdentifier();
 			System.out.println("Identifier: " + id);
+			// Removing /c/ from the string.
 			clients.add(new ServerClient(string.substring(3, string.length()),
 					packet.getAddress(), packet.getPort(), id));
 			System.out.println(string.substring(3, string.length()));
+		// Packets that start with /m/ are message packets.
+		} else if (string.startsWith("/m/")) {
+			sendToAll(string);
 		} else {
 			System.out.println(string);
 		}
