@@ -92,6 +92,12 @@ public class Server implements Runnable {
 		send.start();
 	}
 	
+	private void send(String message, InetAddress address, int port) {
+		// Add /e/ to the message to signify the end of the message.
+		message += "/e/";
+		send(message.getBytes(), address, port);
+	}
+	
 	private void process(DatagramPacket packet) {
 		String string = new String(packet.getData());
 		// Packets that start with /c/ are connection packets.
@@ -103,7 +109,7 @@ public class Server implements Runnable {
 					packet.getAddress(), packet.getPort(), id));
 			System.out.println(string.substring(3, string.length()));
 			String ID = "/c/" + id;
-			send(ID.getBytes(), packet.getAddress(), packet.getPort());
+			send(ID, packet.getAddress(), packet.getPort());
 		// Packets that start with /m/ are message packets.
 		} else if (string.startsWith("/m/")) {
 			sendToAll(string);

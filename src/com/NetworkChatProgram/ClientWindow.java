@@ -139,7 +139,8 @@ public class ClientWindow extends JFrame implements Runnable {
 			        String message = client.receive();
 					if (message.startsWith("/c/")) {
 						// Removing /c/ from the string.
-						client.setID(Integer.parseInt(message.split("/c/")[1]));
+						message = message.split("/c/|/e/")[1];
+						client.setID(Integer.parseInt(message));
 						console("Successfully connected to server. ID: " + client.getID());
 					}
 				}
