@@ -15,6 +15,7 @@ public class Client {
 	private int port;
 	private InetAddress ip;
 	private Thread send;
+	private int ID = -1;
 	
 	public Client(String name, String address, int port) {
 		this.name = name;
@@ -75,4 +76,12 @@ public class Client {
 		send.start();
 	}
 
+	public void setID(int ID) {
+		this.ID = ID;	
+	}
+
+	public int getID() {
+		return ID;
+	}
+	
 }

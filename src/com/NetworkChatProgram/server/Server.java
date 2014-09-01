@@ -102,6 +102,8 @@ public class Server implements Runnable {
 			clients.add(new ServerClient(string.substring(3, string.length()),
 					packet.getAddress(), packet.getPort(), id));
 			System.out.println(string.substring(3, string.length()));
+			String ID = "/c/" + id;
+			send(ID.getBytes(), packet.getAddress(), packet.getPort());
 		// Packets that start with /m/ are message packets.
 		} else if (string.startsWith("/m/")) {
 			sendToAll(string);
