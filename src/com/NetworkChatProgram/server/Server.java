@@ -10,6 +10,7 @@ import java.util.List;
 
 public class Server implements Runnable {
 	private List<ServerClient> clients = new ArrayList<ServerClient>();
+	private List<Integer> clientResponse = new ArrayList<Integer>();
 	
 	private DatagramSocket socket;
     private int port;
@@ -19,6 +20,8 @@ public class Server implements Runnable {
     private Thread manage;
     private Thread send;
     private Thread receive;
+    
+    private final int MAX_ATTEMPTS = 5;  // Amount of ping attempts because the client times out.
     
     public Server(int port) {
     	this.port = port;
@@ -43,7 +46,26 @@ public class Server implements Runnable {
 		manage = new Thread(this, "Manage") {
 			public void run() {
 				while (running) {
-					// Managing.
+					sendToAll("/i/server");
+					try {
+						Thread.sleep(2000);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+					for (int i = 0; i < clients.size(); i++) {
+						ServerClient c = clients.get(i);
+						if (!clientResponse.contains(c.getID())) {
+							if (c.attempt >= MAX_ATTEMPTS) {
+								// Unnatural disconnect, therefore status is false.
+								disconnect(c.getID(), false);
+							} else {
+								c.attempt++;
+							}
+						} else {
+							clientResponse.remove(new Integer(c.getID()));
+							c.attempt = 0;
+						}
+					}
 				}
 			}
 		};
@@ -116,6 +138,9 @@ public class Server implements Runnable {
 			String id = string.split("/d/|/e/")[1];
 			// Manual disconnect, therefore status is true.
 			disconnect(Integer.parseInt(id), true);
+		} else if (string.startsWith("/i/")) {
+		    // Packets that start with /i/ are ping packets.
+			clientResponse.add(Integer.parseInt(string.split("/i/|/e/")[1]));
 		} else {
 			System.out.println(string);
 		}

@@ -160,6 +160,10 @@ public class ClientWindow extends JFrame implements Runnable {
 					    String text = message.substring(3);
 					    text = text.split("/e/")[0].trim();
 					    console(text);
+					} else if (message.startsWith("/i/")) {
+						// Returning a ping message.
+					    String text = "/i/" + client.getID() + "/e/";
+					    send(text, false);
 					}
 				}
 			}
