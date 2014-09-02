@@ -157,7 +157,8 @@ public class ClientWindow extends JFrame implements Runnable {
 						console("Successfully connected to server. ID: " + client.getID() + ".");
 					} else if (message.startsWith("/m/")) {
 						// Removing /m/ and /e/ and trailing spaces from the string.
-					    String text = message.split("/m/|/e/")[1].trim();
+					    String text = message.substring(3);
+					    text = text.split("/e/")[0].trim();
 					    console(text);
 					}
 				}
