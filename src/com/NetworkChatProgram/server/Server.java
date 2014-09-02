@@ -111,9 +111,33 @@ public class Server implements Runnable {
 		// Packets that start with /m/ are message packets.
 		} else if (string.startsWith("/m/")) {
 			sendToAll(string);
+	    // Packets that start with /d/ are disconnect packets.
+		} else if (string.startsWith("/d/")) {
+			String id = string.split("/d/|/e/")[1];
+			// Manual disconnect, therefore status is true.
+			disconnect(Integer.parseInt(id), true);
 		} else {
 			System.out.println(string);
 		}
+	}
+	
+	private void disconnect(int id, boolean status) {
+		ServerClient c = null;
+		for (int i = 0; i < clients.size(); i++)
+			if (clients.get(i).getID() == id) {
+				c = clients.get(i);
+				clients.remove(i);
+				break;
+			}
+		String message = "";
+		if (status) {
+			message = "Client " + c.name.trim() + " (" + c.getID() + ") @ " +
+			        c.address.toString() + ":" + c.port + " disconnected.";
+		} else {
+			message = "Client " + c.name.trim() + " (" + c.getID() + ") @ " +
+				    c.address.toString() + ":" + c.port + " timed out.";
+		}
+		System.out.println(message);
 	}
 	
 }
